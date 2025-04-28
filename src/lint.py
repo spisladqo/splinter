@@ -7,6 +7,7 @@ def splinter(latex_content):
         r"\\\(.*?\\\)",
     ]
     math_pat = "|".join(math_patterns)
+    quote_pat = r"\".*?\""
 
     math_content = []
     def replace_math(match):
@@ -27,6 +28,7 @@ def splinter(latex_content):
     
     latex_content = re.sub(r"\{math_block_(\d+)\}", restore_math, latex_content)
 
+    latex_content = re.sub(r"\"(.*)\"", r"<<\1>>", latex_content)
     latex_content = re.sub(r"\s*(\\footnote)", r"\1", latex_content)
 
     return latex_content
