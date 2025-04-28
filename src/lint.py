@@ -15,7 +15,11 @@ def replace_minuses(latex_content):
     
     latex_content = re.sub(math_pat, replace_math, latex_content)
 
-    latex_content = re.sub(r"\s*-\s*", "~--- ", latex_content)
+    latex_content = re.sub(r"(?<=\d)\s*-\s*(?=\d)", "{double_minus}", latex_content)
+    latex_content = re.sub(r"\s*-\s*", "{triple_minus}", latex_content)
+
+    latex_content = re.sub(r"{double_minus}", "--", latex_content)
+    latex_content = re.sub(r"{triple_minus}", "~--- ", latex_content)
 
     def restore_math(match):
         index = int(match.group(1))
