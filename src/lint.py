@@ -1,6 +1,6 @@
 import re
 
-def replace_minuses(latex_content):
+def splinter(latex_content):
     math_patterns = [
         r"\$.*?\$",
         r"\\\[.*?\\\]",
