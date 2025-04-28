@@ -1,6 +1,6 @@
 import re
 
-def splinter(latex_content):
+def splinter(latex_content, list_mode = "dot"):
     math_patterns = [
         r"\$.*?\$",
         r"\\\[.*?\\\]",
@@ -34,4 +34,39 @@ def splinter(latex_content):
 
     latex_content = re.sub(r"\s*(\\cite)", r"~\1", latex_content)
 
+    latex_content = splint_lists(latex_content, list_mode)
+
+    return latex_content
+
+def splint_lists(latex_content, mode = "dot"):
+    # may be changed in future
+    if not mode == "dot":
+        mode = "semicolon"
+
+    list_item_pattern = r"\\item\s*(.*)"
+
+    def correct_item(item, is_last=False):
+        item = item.strip()
+        if mode == "dot" and item:
+            item = item[0].upper() + item[1:]
+        elif mode == "semicolon" and item:
+            item = item[0].lower() + item[1:]
+
+        if mode == "dot" and not item.endswith('.'):
+            item += '.'
+        elif mode == "semicolon":
+            if not is_last and not item.endswith(';'):
+                item = item.rstrip('.') + ';'
+            elif is_last and not item.endswith('.'):
+                item = item.rstrip(';') +  '.'
+        return item
+
+    def process_list(list_content):
+        items = re.findall(list_item_pattern, list_content)
+        for i, item in enumerate(items):
+            is_last = (i == len(items) - 1)
+            list_content = list_content.replace(item, correct_item(item, is_last), 1)
+        return list_content
+
+    latex_content = re.sub(r"(\\begin{.*}[\s\S]*?\\end{.*})", lambda m: process_list(m.group(1)), latex_content)
     return latex_content
