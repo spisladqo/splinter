@@ -27,4 +27,6 @@ def splinter(latex_content):
     
     latex_content = re.sub(r"\{math_block_(\d+)\}", restore_math, latex_content)
 
+    latex_content = re.sub(r"\s*(\\footnote)", r"\1", latex_content)
+
     return latex_content
