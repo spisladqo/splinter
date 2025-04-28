@@ -15,7 +15,8 @@ def replace_minuses(latex_content):
     
     latex_content = re.sub(math_pat, replace_math, latex_content)
 
-    latex_content = re.sub(r"-", "---", latex_content)
+    latex_content = re.sub(r"-", "~--- ", latex_content)
+
 
     def restore_math(match):
         index = int(match.group(1))
