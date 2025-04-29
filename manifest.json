@@ -1,16 +1,14 @@
 {
-    "manifest_version": 2,
-    "name": "Splinter",
-    "version": "1.0",
-  
-    "description": "A linter for scientific reports at the department of system programming",
-    "homepage_url": "https://github.com/spisladqo/splinter",
-  
-    "permissions": ["activeTab"],
-  
-    "browser_action": {
-      "default_title": "Splinter",
-      "default_popup": "popup/popup.html"
-    }
+  "manifest_version": 2,
+  "name": "Splinter",
+  "version": "1.0",
+  "description": "A linter for scientific reports at the department of system programming",
+  "homepage_url": "https://github.com/spisladqo/splinter",
+  "permissions": [
+    "activeTab"
+  ],
+  "browser_action": {
+    "default_title": "Splinter",
+    "default_popup": "popup/popup.html"
   }
-  
+}
