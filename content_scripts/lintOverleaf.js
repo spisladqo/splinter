@@ -1,6 +1,4 @@
-import { lintLatexContent } from './lintLatexContent.js';
-
-function lintOverleafEditor() {
+function lintOverleafEditor(listMode = "dot") {
     const contentDiv2 = document.querySelector('.cm-content.cm-lineWrapping');
 
     if (!contentDiv2) {
@@ -12,7 +10,7 @@ function lintOverleafEditor() {
         .map(line => line.textContent);
     const originalText = lines.join('\n');
 
-    const newText = lintLatexContent(originalText);
+    const newText = lintLatexContent(originalText, listMode);
 
     contentDiv2.innerHTML = '';
 
