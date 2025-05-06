@@ -3,8 +3,8 @@ listMode = "dot"
 function lintLatexContent(latexContent, listMode = "dot") {
     const mathPatterns = [
         /\$(?:\\.|[^\$\\])*\$/g,
-        /\\\[(?:\\.|[^\]\\])*\]/g,
-        /\\\((?:\\.|[^\)\\])*\)/g,
+        /\\\[(?:\\.|[^\]\\])*\\\]/g,
+        /\\\((?:\\.|[^\)\\])*\\\)/g,
     ];
 
     let mathContent = [];
