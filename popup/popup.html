@@ -1,19 +1,26 @@
 <!doctype html>
 <html>
-
 <head>
   <meta charset="utf-8" />
   <link rel="stylesheet" href="popup.css" />
 </head>
-
 <body>
   <div id="popup-content">
-    <button>Lint</button>
+    <button id="lint-button">Lint</button>
+
+    <div>
+      <p>List item type:</p>
+      <label>
+        <input type="radio" name="listType" value="capital_dot" checked />
+        Capital, dot.
+      </label><br />
+    </div>
   </div>
+
   <div id="error-content" class="hidden">
     <p>An error occurred</p>
   </div>
+
   <script src="popup.js"></script>
 </body>
-
 </html>
