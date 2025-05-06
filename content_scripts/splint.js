@@ -6,8 +6,10 @@ function lintLatexContent(latexContent, listMode = "dot") {
         /\\\[(?:\\.|[^\]\\])*\\\]/g,
         /\\\((?:\\.|[^\)\\])*\\\)/g,
     ];
+    let bracesPattern = /{[^{}]*}/g;
 
     let mathContent = [];
+    let bracesContent = [];
 
     for (const pattern of mathPatterns) {
         latexContent = latexContent.replace(pattern, match => {
@@ -16,24 +18,33 @@ function lintLatexContent(latexContent, listMode = "dot") {
         });
     }
 
+    latexContent = latexContent.replace(bracesPattern, match => {
+        bracesContent.push(match);
+        return `{braces_block_${bracesContent.length - 1}}`;
+    });
+
     latexContent = latexContent.replace(/(?<=\d)\s*-+\s*(?=\d)/g, "{double_minus}");
     latexContent = latexContent.replace(/\s*~---\s*/g, "{triple_minus}");
-
     latexContent = latexContent.replace(/\s+-\s+/g, "{triple_minus}");
 
     latexContent = latexContent.replace(/{double_minus}/g, "--");
     latexContent = latexContent.replace(/{triple_minus}/g, "~--- ");
 
-    latexContent = latexContent.replace(/\"(.*?)\"/g, "<<$1>>");
-
     latexContent = latexContent.replace(/\s*(\\footnote)/g, "$1");
     latexContent = latexContent.replace(/\s*~*(\\cite)/g, "~$1");
+
+    latexContent = latexContent.replace(/\"(.*?)\"/g, "<<$1>>");
 
     latexContent = lintLatexList(latexContent, listMode);
 
     function restoreMath(match, index) {
         return mathContent[parseInt(index)];
     }
+    function restoreBraces(match, index) {
+        return bracesContent[parseInt(index)];
+    }
+
+    latexContent = latexContent.replace(/{braces_block_(\d+)}/g, restoreBraces);
 
     latexContent = latexContent.replace(/{math_block_(\d+)}/g, restoreMath);
 
