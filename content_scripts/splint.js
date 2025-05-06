@@ -16,7 +16,9 @@ function lintLatexContent(latexContent, listMode = "dot") {
         });
     }
 
-    latexContent = latexContent.replace(/(?<=\d)\s*-\s*(?=\d)/g, "{double_minus}");
+    latexContent = latexContent.replace(/(?<=\d)\s*-+\s*(?=\d)/g, "{double_minus}");
+    latexContent = latexContent.replace(/\s*~---\s*/g, "{triple_minus}");
+
     latexContent = latexContent.replace(/\s*-\s*/g, "{triple_minus}");
 
     latexContent = latexContent.replace(/{double_minus}/g, "--");
@@ -25,7 +27,7 @@ function lintLatexContent(latexContent, listMode = "dot") {
     latexContent = latexContent.replace(/\"(.*?)\"/g, "<<$1>>");
 
     latexContent = latexContent.replace(/\s*(\\footnote)/g, "$1");
-    latexContent = latexContent.replace(/\s*(\\cite)/g, "~$1");
+    latexContent = latexContent.replace(/\s*~*(\\cite)/g, "~$1");
 
     latexContent = lintLatexList(latexContent, listMode);
 
