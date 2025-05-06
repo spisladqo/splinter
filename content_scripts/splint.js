@@ -19,7 +19,7 @@ function lintLatexContent(latexContent, listMode = "dot") {
     latexContent = latexContent.replace(/(?<=\d)\s*-+\s*(?=\d)/g, "{double_minus}");
     latexContent = latexContent.replace(/\s*~---\s*/g, "{triple_minus}");
 
-    latexContent = latexContent.replace(/\s*-\s*/g, "{triple_minus}");
+    latexContent = latexContent.replace(/\s+-\s+/g, "{triple_minus}");
 
     latexContent = latexContent.replace(/{double_minus}/g, "--");
     latexContent = latexContent.replace(/{triple_minus}/g, "~--- ");
