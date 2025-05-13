@@ -1,6 +1,10 @@
 {
   "name": "splinter",
-  "repository": "https://github.com/spisladqo/splinter.git",
+  "publisher": "spisladqo",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/spisladqo/splinter.git"
+  },
   "displayName": "Splinter",
   "description": "Linter for LaTex scientific reports.",
   "version": "0.0.1",
