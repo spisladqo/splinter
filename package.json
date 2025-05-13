@@ -1,32 +1,53 @@
 {
   "name": "splinter",
   "displayName": "Splinter",
-  "description": "A linter for scientific reports at the department of system programming",
+  "description": "Linter for LaTex scientific reports.",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.99.3"
+    "vscode": "^1.99.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
-  "main": "./extension.js",
+  "activationEvents": [
+    "onLanguage:foo-lang"
+  ],
+  "main": "./out/extension.js",
   "contributes": {
-    "commands": [{
-      "command": "splinter.helloWorld",
-      "title": "Hello World"
-    }]
+    "languages": [
+      {
+        "id": "latex",
+        "aliases": [
+          "Latex"
+        ],
+        "extensions": [
+          "Latex"
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "extension.formatLatex",
+        "title": "Format Latex Files"
+      }
+    ]
   },
   "scripts": {
-    "lint": "eslint .",
-    "pretest": "npm run lint",
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
     "test": "vscode-test"
   },
   "devDependencies": {
     "@types/vscode": "^1.100.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
     "eslint": "^9.25.1",
+    "typescript": "^5.8.3",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.5.2"
   }

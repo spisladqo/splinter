@@ -1,26 +1,121 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+	vscode.commands.registerCommand('extension.formatLatex', () => {
+		const { activeTextEditor } = vscode.window;
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "splinter" is now active!');
+		if (activeTextEditor && activeTextEditor.document.languageId === 'latex') {
+			const { document } = activeTextEditor;
+			const contents = document.getText();
+			const newContents = lintLatexContent(contents);
+			console.log("New contents:", newContents);
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('splinter.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Splinter!');
+			const firstLine = document.lineAt(0);
+			const lastLine = document.lineAt(document.lineCount - 1);
+			const textRange = new vscode.Range(firstLine.range.start, lastLine.range.end);
+
+			const edit = new vscode.WorkspaceEdit();
+			edit.replace(document.uri, textRange, newContents);
+			return vscode.workspace.applyEdit(edit);
+		}
 	});
-
-	context.subscriptions.push(disposable);
 }
 
-// This method is called when your extension is deactivated
-export function deactivate() {}
+function lintLatexContent(latexContent: string, listMode: "dot" | "semicolon" = "dot"): string {
+	const mathPatterns: RegExp[] = [
+		/\$(?:\\.|[^\$\\])*\$/g,
+		/\\\[(?:\\.|[^\]\\])*\\\]/g,
+		/\\\((?:\\.|[^\)\\])*\\\)/g,
+	];
+	const bracesPattern: RegExp = /{[^{}]*}/g;
+
+	const mathContent: string[] = [];
+	const bracesContent: string[] = [];
+
+	for (const pattern of mathPatterns) {
+		latexContent = latexContent.replace(pattern, (match: string): string => {
+			mathContent.push(match);
+			return `{math_block_${mathContent.length - 1}}`;
+		});
+	}
+
+	latexContent = latexContent.replace(bracesPattern, (match: string): string => {
+		bracesContent.push(match);
+		return `{braces_block_${bracesContent.length - 1}}`;
+	});
+
+	latexContent = latexContent.replace(/(?<=\d)\s*-+\s*(?=\d)/g, "{double_minus}");
+	latexContent = latexContent.replace(/(?<!%)\s*~---\s*/g, "{triple_minus}");
+	latexContent = latexContent.replace(/(?<!%)\s+-\s+/g, "{triple_minus}");
+
+	latexContent = latexContent.replace(/{double_minus}/g, "--");
+	latexContent = latexContent.replace(/{triple_minus}/g, "~--- ");
+
+	latexContent = latexContent.replace(/(?<!%)\s*(\\footnote)/g, "$1");
+	latexContent = latexContent.replace(/(?<!%)\s*~*(\\cite)/g, "~$1");
+
+	latexContent = latexContent.replace(/\"(.*?)\"/g, "<<$1>>");
+
+	latexContent = lintLatexList(latexContent, listMode);
+
+	function restoreMath(_: string, index: string): string {
+		return mathContent[parseInt(index)];
+	}
+
+	function restoreBraces(_: string, index: string): string {
+		return bracesContent[parseInt(index)];
+	}
+
+	latexContent = latexContent.replace(/{braces_block_(\d+)}/g, restoreBraces);
+	latexContent = latexContent.replace(/{math_block_(\d+)}/g, restoreMath);
+
+	return latexContent;
+}
+
+function lintLatexList(latexContent: string, mode: "dot" | "semicolon" = "dot"): string {
+	const listItemPattern: RegExp = /\\item\s*(.*)/g;
+
+	function correctItem(item: string, isLast: boolean = false): string {
+		item = item.trim();
+
+		if (mode === "dot" && item) {
+			item = item[0].toUpperCase() + item.slice(1);
+		} else if (mode === "semicolon" && item) {
+			item = item[0].toLowerCase() + item.slice(1);
+		}
+
+		if (mode === "dot" && !item.endsWith('.')) {
+			item += '.';
+		} else if (mode === "semicolon") {
+			if (!isLast && !item.endsWith(';')) {
+				item = item.replace(/\.$/, '') + ';';
+			} else if (isLast && !item.endsWith('.')) {
+				item = item.replace(/;$/, '') + '.';
+			}
+		}
+
+		return item;
+	}
+
+	function processList(listContent: string): string {
+		const items: string[] = [];
+		let match: RegExpExecArray | null;
+
+		while ((match = listItemPattern.exec(listContent)) !== null) {
+			items.push(match[1]);
+		}
+
+		items.forEach((item, i) => {
+			const isLast = (i === items.length - 1);
+			listContent = listContent.replace(item, correctItem(item, isLast));
+		});
+
+		return listContent;
+	}
+
+	latexContent = latexContent.replace(/(\\begin{.*}[\s\S]*?\\end{.*})/g, (match: string): string => processList(match));
+
+	return latexContent;
+}
+
+export function deactivate() { }
