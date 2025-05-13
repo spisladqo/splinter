@@ -7,7 +7,11 @@ export function activate(context: vscode.ExtensionContext) {
 		if (activeTextEditor && activeTextEditor.document.languageId === 'latex') {
 			const { document } = activeTextEditor;
 			const contents = document.getText();
-			const newContents = lintLatexContent(contents);
+
+			const config = vscode.workspace.getConfiguration("splinter");
+			var mode = config.get("listType", "dot");
+
+			const newContents = lintLatexContent(contents, mode);
 			console.log("New contents:", newContents);
 
 			const firstLine = document.lineAt(0);
@@ -21,7 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 }
 
-function lintLatexContent(latexContent: string, listMode: "dot" | "semicolon" = "dot"): string {
+function lintLatexContent(latexContent: string, listMode: string = "dot"): string {
 	const mathPatterns: RegExp[] = [
 		/\$(?:\\.|[^\$\\])*\$/g,
 		/\\\[(?:\\.|[^\]\\])*\\\]/g,
@@ -72,11 +76,17 @@ function lintLatexContent(latexContent: string, listMode: "dot" | "semicolon" = 
 	return latexContent;
 }
 
-function lintLatexList(latexContent: string, mode: "dot" | "semicolon" = "dot"): string {
+function lintLatexList(latexContent: string, mode: string = "dot"): string {
 	const listItemPattern: RegExp = /\\item\s*(.*)/g;
 
 	function correctItem(item: string, isLast: boolean = false): string {
 		item = item.trim();
+
+		var commentAtEnd = false;
+		if (item.endsWith('%')) {
+			commentAtEnd = true;
+			item = item.slice(0, -1);
+		}
 
 		if (mode === "dot" && item) {
 			item = item[0].toUpperCase() + item.slice(1);
@@ -85,13 +95,17 @@ function lintLatexList(latexContent: string, mode: "dot" | "semicolon" = "dot"):
 		}
 
 		if (mode === "dot" && !item.endsWith('.')) {
-			item += '.';
+			item = item.replace(/;$/g, '') + '.';
 		} else if (mode === "semicolon") {
 			if (!isLast && !item.endsWith(';')) {
 				item = item.replace(/\.$/, '') + ';';
 			} else if (isLast && !item.endsWith('.')) {
 				item = item.replace(/;$/, '') + '.';
 			}
+		}
+
+		if (commentAtEnd) {
+			item += '%';
 		}
 
 		return item;

@@ -18,10 +18,10 @@
       {
         "id": "latex",
         "aliases": [
-          "Latex"
+          "LaTex"
         ],
         "extensions": [
-          "Latex"
+          "LaTex"
         ]
       }
     ],
@@ -30,7 +30,18 @@
         "command": "extension.formatLatex",
         "title": "Format Latex Files"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "LaTex",
+      "properties": {
+        "splinter.listType": {
+          "type": "string",
+          "enum": ["dot", "semicolon"],
+          "default": "dot",
+          "description": "List item style"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
