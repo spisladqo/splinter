@@ -1,21 +1,31 @@
 # splinter
 
-VSCode Linter for LaTex scientific reports.
+Линтер для курсовых на кафедре СП в виде плагина для VSCode.
 
-## Features
+## Что делает
 
-- Transforms minus sequences in text into dashes and ranges when needed.
-- Replaces "curved" quotation marks with «angular».
-- Adds/removes spaces before some commands.
-- Makes lists consistent.
+Исправляет минусы между словами на тире, минусы между числами на промежутки, математику не трогает.
+Все "кавычки" меняются на «угловые». А также исправляет списки.
 
-## Usage
+## Использование
 
-`Ctrl+Shift+P`, followed by `Format Latex Files`.
+Загружаем плагин `Splinter` во вкладке Extensions в VS Code.
 
-## Extension Settings
+`Ctrl+Shift+P`, потом `Format Latex Files`.
 
-This extension contributes the following settings:
+## Конфигурация
 
-* `splinter.listType`: set to `dot` for items to start with uppercase and end with dots, set to `semicolon` for items to start with lowercase and end with semicolons (last element will end with dot).
+В настройках аддонов, во вкладке LaTex можно выбирать стиль списков:
+
+`dot`:
+```
+\item В конце списков точки.
+\item И заглавные буквы.
+```
+`semicolon`:
+```
+\item точки с запятыми;
+\item прописные буквы;
+\item в конце точка.
+```
 

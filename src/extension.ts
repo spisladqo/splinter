@@ -20,6 +20,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 			const edit = new vscode.WorkspaceEdit();
 			edit.replace(document.uri, textRange, newContents);
+			vscode.window.showInformationMessage('Successfully updated!');
 			return vscode.workspace.applyEdit(edit);
 		}
 	});
@@ -32,9 +33,16 @@ function lintLatexContent(latexContent: string, listMode: string = "dot"): strin
 		/\\\((?:\\.|[^\)\\])*\\\)/g,
 	];
 	const bracesPattern: RegExp = /{[^{}]*}/g;
+	const figurePattern: RegExp = /\\begin{figure}[\s\S]*?\\end{figure}/g;
 
 	const mathContent: string[] = [];
 	const bracesContent: string[] = [];
+	const figureContent: string[] = [];
+
+	latexContent = latexContent.replace(figurePattern, (match: string): string => {
+		figureContent.push(match);
+		return `{figure_block_${figureContent.length - 1}}`;
+	});
 
 	for (const pattern of mathPatterns) {
 		latexContent = latexContent.replace(pattern, (match: string): string => {
@@ -42,7 +50,6 @@ function lintLatexContent(latexContent: string, listMode: string = "dot"): strin
 			return `{math_block_${mathContent.length - 1}}`;
 		});
 	}
-
 	latexContent = latexContent.replace(bracesPattern, (match: string): string => {
 		bracesContent.push(match);
 		return `{braces_block_${bracesContent.length - 1}}`;
@@ -70,8 +77,13 @@ function lintLatexContent(latexContent: string, listMode: string = "dot"): strin
 		return bracesContent[parseInt(index)];
 	}
 
+	function restoreFigure(_: string, index: string): string {
+		return figureContent[parseInt(index)];
+	}
+
 	latexContent = latexContent.replace(/{braces_block_(\d+)}/g, restoreBraces);
 	latexContent = latexContent.replace(/{math_block_(\d+)}/g, restoreMath);
+	latexContent = latexContent.replace(/{figure_block_(\d+)}/g, restoreFigure);
 
 	return latexContent;
 }
@@ -95,12 +107,21 @@ function lintLatexList(latexContent: string, mode: string = "dot"): string {
 		}
 
 		if (mode === "dot" && !item.endsWith('.')) {
-			item = item.replace(/;$/g, '') + '.';
+			item = item.replace(/;$/g, '');
+			if (!/[!?.}]$/g.test(item)) {
+				item += '.';
+			}
 		} else if (mode === "semicolon") {
 			if (!isLast && !item.endsWith(';')) {
-				item = item.replace(/\.$/, '') + ';';
+				item = item.replace(/[.?!]$/, '');
+				if (!/[;}]$/g.test(item)) {
+					item += ';';
+				}
 			} else if (isLast && !item.endsWith('.')) {
-				item = item.replace(/;$/, '') + '.';
+				item = item.replace(/;$/, '');
+				if (!/[!?.}]$/g.test(item)) {
+					item += '.';
+				}
 			}
 		}
 
