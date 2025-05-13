@@ -1,6 +1,6 @@
 # splinter
 
-Linter for LaTex scientific reports.
+VSCode Linter for LaTex scientific reports.
 
 ## Features
 
@@ -9,8 +9,13 @@ Linter for LaTex scientific reports.
 - Adds/removes spaces before some commands.
 - Makes lists consistent.
 
+## Usage
+
+`Ctrl+Shift+P`, followed by `Format Latex Files`.
+
 ## Extension Settings
 
 This extension contributes the following settings:
 
-* `splinter.listType`: set to `dot` to start items with uppercase and end with dots, set to `semicolon` to start items with lowercase and end with semicolons, last one ends with a dot.
+* `splinter.listType`: set to `dot` for items to start with uppercase and end with dots, set to `semicolon` for items to start with lowercase and end with semicolons (last element will end with dot).
+
